@@ -3,20 +3,14 @@ name: Allure Report Python
 on:
   push:
     branches:
-      - main
-      - master
       - scooter-tests
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   tests:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
 
     steps:
       - name: Checkout repository
@@ -39,14 +33,6 @@ jobs:
           pytest --alluredir=allure-results
         continue-on-error: true
 
-      - name: Get Allure history
-        uses: actions/checkout@v4
-        if: always()
-        with:
-          ref: gh-pages
-          path: gh-pages
-        continue-on-error: true
-
       - name: Generate Allure Report
         uses: simple-elf/allure-report-action@master
         if: always()
@@ -54,16 +40,9 @@ jobs:
           allure_results: allure-results
           allure_history: allure-history
 
-      - name: Deploy to GitHub Pages
-        uses: actions/configure-pages@v4
-        if: always()
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload Allure Archive
+        uses: actions/upload-artifact@v4
         if: always()
         with:
+          name: allure-report
           path: allure-history
-
-      - name: Deploy to GitHub Pages Execution
-        uses: actions/deploy-pages@v4
-        if: always()
