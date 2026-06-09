@@ -1,0 +1,70 @@
+name: Allure Report Python
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - scooter-tests
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+deployments:
+  environment:
+    name: github-pages
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Firefox
+        uses: browser-actions/setup-firefox@v1
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run tests with Allure
+        run: |
+          pytest --alluredir=allure-results
+        continue-on-error: true
+
+      - name: Get Allure history
+        uses: actions/checkout@v4
+        if: always()
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Generate Allure Report
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        with:
+          allure_results: allure-results
+          allure_history: allure-history
+
+      - name: Deploy to GitHub Pages
+        uses: actions/configure-pages@v4
+        if: always()
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        if: always()
+        with:
+          path: allure-history
+
+      - name: Deploy to GitHub Pages Execution
+        uses: actions/deploy-pages@v4
+        if: always()
