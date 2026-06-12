@@ -1,19 +1,21 @@
 import allure
 from pages.base_page import BasePage
 from locators.main_page_locators import MainPageLocators
+from data import urls  # Импортируем наш файл с урлами
 
 class MainPage(BasePage):
-    URL = "https://praktikum-services.ru"
+    URL = urls.MAIN_PAGE_URL 
 
-    @allure.step("Открыть главную страницу")
+    @allure.step("Открыть главную страницу Самоката")
     def open(self):
-        self.driver.get(self.URL)
+        # Используем метод из BasePage вместо self.driver.get
+        self.open_url(self.URL) 
 
     @allure.step("Принять куки, если они появились")
     def accept_cookies(self):
         try:
             self.click_element(MainPageLocators.COOKIE_BUTTON)
-        except:
+        except Exception:
             pass
 
     @allure.step("Кликнуть верхнюю кнопку 'Заказать'")
@@ -42,4 +44,5 @@ class MainPage(BasePage):
 
     @allure.step("Кликнуть на логотип Яндекса")
     def click_logo_yandex(self):
-        self.click_element(MainPageLocators.LOGO_YANDEX)
+        # ИСПРАВЛЕНО: Заменена точка на нижнее подчёркивание в названии локатора
+        self.click_element(MainPageLocators.LOGO_YANDEX) 
