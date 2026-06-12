@@ -1,6 +1,5 @@
 import pytest
 import allure
-from selenium.webdriver.support.ui import WebDriverWait
 from pages.main_page import MainPage
 from pages.order_page import OrderPage
 
@@ -8,7 +7,7 @@ class TestOrder:
     @pytest.mark.parametrize(
         "button_type, name, surname, address, metro, phone, date, period, color, comment",
         [
-            ("top", "Иван", "Иванов", "Москва, ул. Ленина 1", "Чистые пруды", "89991112233", "25.12.2026", "сутки", "black", "Позвонить за час"),
+            ("top", "Иван", "Иванов", "Москва, ул. Ленина 1", "Чистые пруды", "89091112233", "25.12.2026", "сутки", "black", "Позвонить за час"),
             ("bottom", "Петр", "Петров", "Москва, ул. Мира 10", "Сокольники", "89994445566", "26.12.2026", "двое суток", "grey", "Оставить у двери")
         ]
     )
@@ -29,23 +28,15 @@ class TestOrder:
         # Оформление заказа (Шаг 1 и Шаг 2)
         order_page.fill_first_step(name, surname, address, metro, phone)
         order_page.fill_second_step(date, period, color, comment)
-        
+
         # 1. Проверка создания заказа
         assert order_page.is_order_created()
 
         # 2. Проверка логотипа Самоката (возврат на главную)
         main_page.click_logo_scooter()
-        assert driver.current_url == main_page.URL
+        assert main_page.get_current_url() == main_page.URL
 
         # 3. Проверка логотипа Яндекса (открытие Дзена в новом окне)
-        original_window = driver.current_window_handle
         main_page.click_logo_yandex()
-        
-        WebDriverWait(driver, 5).until(lambda d: len(d.window_handles) == 2)
-        for window_handle in driver.window_handles:
-            if window_handle != original_window:
-                driver.switch_to.window(window_handle)
-                break
-                
-        WebDriverWait(driver, 10).until(lambda d: "dzen.ru" in d.current_url)
-        assert "dzen.ru" in driver.current_url
+        main_page.switch_to_new_window()
+        assert "dzen.ru" in main_page.get_current_url()
